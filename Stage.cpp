@@ -95,7 +95,7 @@ void Stage::Update()
         Direct3D::SetLightPos(p);
     }
 
-    //コンスタントバッファの設定と、Shaderへのコンスタントバッファのセットを書くよ
+    //コンスタントバッファの設定と、シェーダーへのコンスタントバッファのセットを書くよ
     CONSTANT_BUFFER_STAGE cb;
     cb.lightPosition = Direct3D::GetLightPos();
     XMStoreFloat4(&cb.eyePosition, Camera::GetPosition());
@@ -103,13 +103,11 @@ void Stage::Update()
     D3D11_MAPPED_SUBRESOURCE pdata;
     Direct3D::pContext_->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのデータアクセスを止める
     memcpy_s(pdata.pData, pdata.RowPitch, (void*)(&cb), sizeof(cb));	// データを値を送る
-
     Direct3D::pContext_->Unmap(pConstantBuffer_, 0);	//再開
 
     //コンスタントバッファ
-    Direct3D::pContext_->VSSetConstantBuffers(0, 1, &pConstantBuffer_);	//頂点シェーダー用	
-    Direct3D::pContext_->PSSetConstantBuffers(0, 1, &pConstantBuffer_);	//ピクセルシェーダー用
-
+    Direct3D::pContext_->VSSetConstantBuffers(1, 1, &pConstantBuffer_);	//頂点シェーダー用	
+    Direct3D::pContext_->PSSetConstantBuffers(1, 1, &pConstantBuffer_);	//ピクセルシェーダー用
 }
 
 //描画

@@ -229,17 +229,21 @@ void Fbx::InitMaterial(fbxsdk::FbxNode* pNode)
 				HRESULT hr = pMaterialList_[i].pTexture->Load(texFile.string());
 				assert(hr == S_OK);
 			}
-			FbxSurfaceLambert* pMaterial = (FbxSurfaceLambert*)pNode->GetMaterial(i);
+			FbxSurfacePhong* pMaterial = (FbxSurfacePhong*)pNode->GetMaterial(i);
 			FbxDouble  diffuse = pMaterial->DiffuseFactor;
 			FbxDouble3 ambient = pMaterial->Ambient;
 			//diffuse = 1.0;
 			pMaterialList_[i].factor = XMFLOAT4((float)diffuse, (float)diffuse, (float)diffuse, (float)diffuse);
-			pMaterialList_[i].ambient = { ambient[0],ambient[1],ambient[2],1.0f };
+			pMaterialList_[i].ambient = { (float)ambient[0],(float)ambient[1],(float)ambient[2],1.0f };
 
 			if (pMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
 			{
-				FbxDouble3 specukar = pMaterial->sSpecular;
-				FbxDouble  shininess = pMaterial->shininess;
+				FbxDouble3 specular = pMaterial->Specular;
+				FbxDouble  shininess = pMaterial->Shininess;
+
+				pMaterialList_[i].specular = { (float)specular[0],(float)specular[1],(float)specular[2],1.0f };
+				pMaterialList_[i].shininess = { (float)shininess,(float)shininess,(float)shininess,1.0f };
+
 			}
 		}
 
@@ -249,12 +253,15 @@ void Fbx::InitMaterial(fbxsdk::FbxNode* pNode)
 		{
 			pMaterialList_[i].pTexture = nullptr;
 			//マテリアルの色
-			FbxSurfaceLambert* pMaterial = (FbxSurfaceLambert*)pNode->GetMaterial(i);
+			FbxSurfacePhong* pMaterial = (FbxSurfacePhong*)pNode->GetMaterial(i);
 			FbxDouble3  diffuse = pMaterial->Diffuse;
 			pMaterialList_[i].diffuse = XMFLOAT4((float)diffuse[0], (float)diffuse[1], (float)diffuse[2], 1.0f);
 			//FbxSurfaceLambert* pMaterial = (FbxSurfaceLambert*)pNode->GetMaterial(i);
 			FbxDouble  factor = pMaterial->DiffuseFactor;
 			pMaterialList_[i].factor = XMFLOAT4((float)factor, (float)factor, (float)factor, (float)factor);
+
+			FbxDouble3  ambient = pMaterial ->Ambient;
+			pMaterialList_[i].ambient = {(float)ambient[0], (float)ambient[1], (float)ambient[2], 1.0f};
 		}
 	}
 }
@@ -274,6 +281,9 @@ void Fbx::Draw(Transform& transform)
 		cb.matWVP = XMMatrixTranspose(transform.GetWorldMatrix() * Camera::GetViewMatrix() * Camera::GetProjectionMatrix());
 		cb.matW = XMMatrixTranspose(transform.GetWorldMatrix());
 		cb.matNormal = XMMatrixTranspose(transform.GetNormalMatrix());
+		cb.ambientColor = pMaterialList_[i].ambient;
+		cb.specularColor = pMaterialList_[i].specular;
+		cb.shininess = pMaterialList_[i].shininess;
 		cb.diffuseColor = pMaterialList_[i].diffuse;
 		//cb.lightPosition = Direct3D::GetLightPos();
 		cb.diffuseFactor = pMaterialList_[i].factor;

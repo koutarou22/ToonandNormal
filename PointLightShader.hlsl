@@ -15,6 +15,10 @@ cbuffer gModel:register(b0)
     float4x4 matNormal; // ワールド行列
     float4 diffuseColor; //マテリアルの色＝拡散反射係数tt
     float4 factor;
+    float4 ambientColor;
+    float4 specularColor;
+    float4 shininess;
+    
     bool isTextured; //テクスチャーが貼られているかどうか
 };
 cbuffer gStage:register(b1)
@@ -27,10 +31,11 @@ cbuffer gStage:register(b1)
 //───────────────────────────────────────
 struct VS_OUT
 {
-    float4 wpos : POSITION; //位置
+    float4 wpos : POSITION0; //位置
     float4 pos : SV_POSITION; //位置
     float2 uv : TEXCOORD; //UV座標
     float4 normal : NORMAL;
+    float4 evev : POSITION1;//鏡面反射用の視点
     //float4 col : COLOR;
 };
 
@@ -52,6 +57,7 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
     outData.wpos = wpos;
     outData.uv = uv.xy;
     outData.normal = wnormal;
+    outData.evev = eyePosition - wpos;//視点から
     //float4 dir = normalize(lightPosition - wpos);
     //outData.col = clamp(dot(normalize(wnormal), dir), 0, 1);
     
@@ -74,12 +80,15 @@ float4 PS(VS_OUT inData) : SV_Target
     float len = length(lightPosition.xyz - inData.wpos.xyz);
     float dTerm = 1.0 / (k.x + k.y*len + k.z*len*len);
     
+    float4 R = reflect(normalize(inData.normal), normalize(inData.evev));
+    
+    float4 specular = pow(saturate(dot(R, normalize(-inData.evev))), shininess) *specularColor;
+    
     if (isTextured == false)
     {
         diffuse =  diffuseColor * color * dTerm * factor.x;
         ////diffuse = float4(1.0, 1.0, 1.0, 1.0);
         ambient =  diffuseColor * ambentSource;
-
     }
     else
     {
