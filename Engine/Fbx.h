@@ -15,8 +15,16 @@ using std::vector;
 
 class Texture;
 
+enum SHADERTYPE
+{
+	POINTLIGHT = 1,
+	MATERIAL,
+};
+
 class Fbx
 {
+
+	int ShaderState_;
 	//ƒ}ƒeƒŠƒAƒ‹
 	struct MATERIAL
 	{
@@ -66,6 +74,7 @@ public:
 
 	Fbx();
 	HRESULT Load(std::string fileName);
+	void    Update();
 	void    Draw(Transform& transform);
 	void    Release();
 };

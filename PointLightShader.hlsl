@@ -8,7 +8,7 @@ SamplerState g_sampler : register(s0); //サンプラー
 // コンスタントバッファ
 // DirectX 側から送信されてくる、ポリゴン頂点以外の諸情報の定義
 //───────────────────────────────────────
-cbuffer gModel:register(b0)
+cbuffer gModel : register(b0)
 {
     float4x4 matWVP; // ワールド・ビュー・プロジェクションの合成行列
     float4x4 matW; //ワールド変換マトリクス
@@ -18,14 +18,16 @@ cbuffer gModel:register(b0)
     float4 ambientColor;
     float4 specularColor;
     float4 shininess;
-    
+
     bool isTextured; //テクスチャーが貼られているかどうか
 };
-cbuffer gStage:register(b1)
+
+cbuffer gStage : register(b1)
 {
     float4 lightPosition;
     float4 eyePosition;
 };
+
 //───────────────────────────────────────
 // 頂点シェーダー出力＆ピクセルシェーダー入力データ構造体
 //───────────────────────────────────────
@@ -35,7 +37,7 @@ struct VS_OUT
     float4 pos : SV_POSITION; //位置
     float2 uv : TEXCOORD; //UV座標
     float4 normal : NORMAL;
-    float4 evev : POSITION1;//鏡面反射用の視点
+    float4 eyev : POSITION1;
     //float4 col : COLOR;
 };
 
@@ -50,14 +52,15 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
 	//ローカル座標に、ワールド・ビュー・プロジェクション行列をかけて
 	//スクリーン座標に変換し、ピクセルシェーダーへ
     float4 spos = mul(pos, matWVP);
-    float4 wpos = mul(pos, matW);//ワールド座標に変換
+    float4 wpos = mul(pos, matW); //ワールド座標に変換
     float4 wnormal = mul(normal, matNormal);
     
     outData.pos = spos;
     outData.wpos = wpos;
     outData.uv = uv.xy;
     outData.normal = wnormal;
-    outData.evev = eyePosition - wpos;//視点から
+    outData.eyev = eyePosition - wpos;
+    
     //float4 dir = normalize(lightPosition - wpos);
     //outData.col = clamp(dot(normalize(wnormal), dir), 0, 1);
     
@@ -78,23 +81,25 @@ float4 PS(VS_OUT inData) : SV_Target
     float color = saturate(dot(normalize(inData.normal.xyz), dir));
     float3 k = { 0.2f, 0.2f, 1.0f };
     float len = length(lightPosition.xyz - inData.wpos.xyz);
-    float dTerm = 1.0 / (k.x + k.y*len + k.z*len*len);
+    float dTerm = 1.0 / (k.x + k.y * len + k.z * len * len);
     
-    float4 R = reflect(normalize(inData.normal), normalize(inData.evev));
-    
-    float4 specular = pow(saturate(dot(R, normalize(-inData.evev))), shininess) *specularColor;
+    float4 R = reflect(normalize(inData.normal), normalize(float4(dir, 1.0)));
+    float4 specular = pow(saturate(dot(R, normalize(inData.eyev))), shininess) * specularColor;
     
     if (isTextured == false)
     {
-        diffuse =  diffuseColor * color * dTerm * factor.x;
+        diffuse = diffuseColor * color * dTerm * factor.x;
         ////diffuse = float4(1.0, 1.0, 1.0, 1.0);
-        ambient =  diffuseColor * ambentSource;
+        ambient = diffuseColor * ambentSource;
+
     }
     else
     {
-        diffuse =   g_texture.Sample(g_sampler, inData.uv) * color * dTerm*factor.x;
+        diffuse = g_texture.Sample(g_sampler, inData.uv) * color * dTerm * factor.x;
         ambient = g_texture.Sample(g_sampler, inData.uv) * ambentSource;
 
     }
-    return diffuse+ambient;
+
+    return diffuse + specular + ambient;
+    //return specular + ambient;
 }

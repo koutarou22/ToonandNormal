@@ -5,10 +5,11 @@
 #include "Texture.h"
 #include <vector>
 #include <filesystem>
+#include "Input.h"
 
 Fbx::Fbx()
 	:vertexCount_(0), polygonCount_(0), materialCount_(0),
-	pVertexBuffer_(nullptr), pIndexBuffer_(nullptr), pConstantBuffer_(nullptr)
+	pVertexBuffer_(nullptr), pIndexBuffer_(nullptr), pConstantBuffer_(nullptr), ShaderState_(1)
 {
 }
 
@@ -61,6 +62,17 @@ HRESULT Fbx::Load(std::string fileName)
 	return S_OK;
 }
 
+void Fbx::Update()
+{
+	if (Input::IsKeyDown(DIK_Z))
+	{
+		ShaderState_++;
+		//camState_ = (++camState_) % (CAM_TYPE::MAX);
+		if (ShaderState_ = SHADERTYPE::POINTLIGHT)
+			ShaderState_ = SHADERTYPE::POINTLIGHT;
+	}
+}
+
 //頂点バッファ準備
 void Fbx::InitVertex(fbxsdk::FbxMesh* mesh)
 {
@@ -94,7 +106,7 @@ void Fbx::InitVertex(fbxsdk::FbxMesh* mesh)
 			//mesh->GetPolygonVertexNormal(poly, vertex, Normal);	//ｉ番目のポリゴンの、ｊ番目の頂点の法線をゲット
 
 			FbxVector4 Normal = leNormal->GetDirectArray().GetAt(index);
-			
+
 			vertices[index].normal = XMVectorSet((float)Normal[0], (float)Normal[1], -(float)Normal[2], 0.0f);
 		}
 	}
@@ -148,7 +160,7 @@ void Fbx::InitIndex(fbxsdk::FbxMesh* mesh)
 					index[count] = mesh->GetPolygonVertex(poly, 2 - vertex);
 					count++;
 				}
-			}	
+			}
 		}
 		indexCount_[i] = count;
 
@@ -231,22 +243,19 @@ void Fbx::InitMaterial(fbxsdk::FbxNode* pNode)
 			}
 			FbxSurfacePhong* pMaterial = (FbxSurfacePhong*)pNode->GetMaterial(i);
 			FbxDouble  diffuse = pMaterial->DiffuseFactor;
-			FbxDouble3 ambient = pMaterial->Ambient;
-			//diffuse = 1.0;
+			FbxDouble3  ambient = pMaterial->Ambient;
 			pMaterialList_[i].factor = XMFLOAT4((float)diffuse, (float)diffuse, (float)diffuse, (float)diffuse);
-			pMaterialList_[i].ambient = { (float)ambient[0],(float)ambient[1],(float)ambient[2],1.0f };
-
+			pMaterialList_[i].ambient = { (float)ambient[0], (float)ambient[1], (float)ambient[2], 1.0f };
+			//あなたはフォンのパラメータを持ってますか？
 			if (pMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
 			{
 				FbxDouble3 specular = pMaterial->Specular;
-				FbxDouble  shininess = pMaterial->Shininess;
-
-				pMaterialList_[i].specular = { (float)specular[0],(float)specular[1],(float)specular[2],1.0f };
-				pMaterialList_[i].shininess = { (float)shininess,(float)shininess,(float)shininess,1.0f };
-
+				FbxDouble shininess = pMaterial->Shininess; //4つとも同じ値でセット
+				//ここで、自分のpMaterialList_[i]に値を設定
+				pMaterialList_[i].specular = { (float)specular[0],(float)specular[1], (float)specular[2], 1.0f };
+				pMaterialList_[i].shininess = { (float)shininess,(float)shininess, (float)shininess, 1.0 };
 			}
 		}
-
 
 		//テクスチャ無し
 		else
@@ -259,9 +268,22 @@ void Fbx::InitMaterial(fbxsdk::FbxNode* pNode)
 			//FbxSurfaceLambert* pMaterial = (FbxSurfaceLambert*)pNode->GetMaterial(i);
 			FbxDouble  factor = pMaterial->DiffuseFactor;
 			pMaterialList_[i].factor = XMFLOAT4((float)factor, (float)factor, (float)factor, (float)factor);
+			FbxDouble3  ambient = pMaterial->Ambient;
+			pMaterialList_[i].ambient = { (float)ambient[0], (float)ambient[1], (float)ambient[2], 1.0f };
+			if (pMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
+			{
+				FbxDouble3 specular = pMaterial->Specular;
+				FbxDouble shininess = pMaterial->Shininess; //4つとも同じ値でセット
+				//ここで、自分のpMaterialList_[i]に値を設定
+				pMaterialList_[i].specular = { (float)specular[0],(float)specular[1], (float)specular[2], 1.0f };
+				pMaterialList_[i].shininess = { (float)shininess,(float)shininess, (float)shininess, 1.0 };
+			}
+			else
+			{
+				pMaterialList_[i].specular = { 0.0f,0.0f,0.0f,1.0f };
+				pMaterialList_[i].shininess = { 10.0f,10.0f,10.0f, 1.0 };
+			}
 
-			FbxDouble3  ambient = pMaterial ->Ambient;
-			pMaterialList_[i].ambient = {(float)ambient[0], (float)ambient[1], (float)ambient[2], 1.0f};
 		}
 	}
 }
@@ -269,9 +291,21 @@ void Fbx::InitMaterial(fbxsdk::FbxNode* pNode)
 
 void Fbx::Draw(Transform& transform)
 {
-	Direct3D::SetShader(SHADER_POINT);
-	transform.Calclation();//トランスフォームを計算
+
+	switch (ShaderState_)
+	{
+	case SHADERTYPE::POINTLIGHT:
+		Direct3D::SetShader(SHADER_POINT);
+		break;
+	case SHADERTYPE::MATERIAL:
+		Direct3D::SetShader(SHADER_3D);
+		break;
+	default:
+		break;
+	}
 	
+	transform.Calclation();//トランスフォームを計算
+
 
 	for (int i = 0; i < materialCount_; i++)
 	{
@@ -285,10 +319,9 @@ void Fbx::Draw(Transform& transform)
 		cb.specularColor = pMaterialList_[i].specular;
 		cb.shininess = pMaterialList_[i].shininess;
 		cb.diffuseColor = pMaterialList_[i].diffuse;
-		//cb.lightPosition = Direct3D::GetLightPos();
 		cb.diffuseFactor = pMaterialList_[i].factor;
 		cb.isTextured = pMaterialList_[i].pTexture != nullptr;
-	
+
 		D3D11_MAPPED_SUBRESOURCE pdata;
 		Direct3D::pContext_->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのデータアクセスを止める
 		memcpy_s(pdata.pData, pdata.RowPitch, (void*)(&cb), sizeof(cb));	// データを値を送る
