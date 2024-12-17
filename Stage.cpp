@@ -6,6 +6,8 @@
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_impl_win32.h"
 
+#include "Engine/Fbx.h"
+
 
 
 void Stage::InitConstantBuffer()
@@ -33,7 +35,10 @@ Stage::Stage(GameObject* parent)
     hModel_ = -1;
     hGround = -1;
     hRoom_ = -1;
-    hBunny_ = -1;
+    hRing_ = -1;
+    hRing_LambertTexture_ = -1;
+    hRing_PhongCollar_ = -1;
+    hRing_Lambert = -1;
 }
 
 //デストラクタ
@@ -47,7 +52,12 @@ void Stage::Initialize()
     hModel_ = Model::Load("Assets\\color.fbx");
     hRoom_ = Model::Load("Assets\\room.fbx");
     hGround = Model::Load("Assets\\plane3.fbx");
-    hBunny_ = Model::Load("Assets\\RING.fbx");
+    hRing_ = Model::Load("Assets\\RING.fbx");
+
+    hRing_Lambert = Model::Load("Assets\\LAMBERT_RING.fbx");
+    
+    hRing_LambertTexture_ = Model::Load("Assets\\LAMBERT_TEXTURE_RING.fbx");
+    hRing_PhongCollar_ = Model::Load("Assets\\PHONG_COLLAR_RING.fbx");
     Camera::SetPosition(XMFLOAT3{ 0, 0.8, -2.8 });
     Camera::SetTarget(XMFLOAT3{ 0,0.8,0 });
 
@@ -57,6 +67,8 @@ void Stage::Initialize()
 //更新
 void Stage::Update()
 {
+
+    Fbx* pFbx = nullptr;
     transform_.rotate_.y += 0.5f;
     if (Input::IsKey(DIK_A))
     {
@@ -116,29 +128,48 @@ void Stage::Draw()
 
     Transform ltr;
     ltr.position_ = { Direct3D::GetLightPos().x,Direct3D::GetLightPos().y,Direct3D::GetLightPos().z };
-    ltr.scale_ = { 0.1,0.1,0.1 };
+    //ltr.scale_ = { 0.1,0.1,0.1 };
     Model::SetTransform(hModel_, ltr);
     Model::Draw(hModel_);
 
 
     Transform tr;
     tr.position_ = { 0, 0, 0 };
-    //tr.scale_ = { 5.0f, 5.0f, 5.0f };
+    tr.scale_ = { 2.0f,2.0f,2.0f };
     tr.rotate_ = { 0,0,0 };
-    //Model::SetTransform(hGround, tr);
-    //Model::Draw(hGround);
-
     Model::SetTransform(hRoom_, tr);
     Model::Draw(hRoom_);
 
-    static Transform tbunny;
-    tbunny.scale_ = { 0.35,0.35,0.35 };
-    tbunny.position_ = { 0,0.5,0 };
-    tbunny.rotate_.y += 0.1;
-    Model::SetTransform(hBunny_, tbunny);
-    Model::Draw(hBunny_);
+    //テクスチャあり、フォンあり
+    static Transform Ring;
+    Ring.scale_ = { 0.35,0.35,0.35 };
+    Ring.position_ = { 0,0.5,0 };
+    Ring.rotate_.y += 0.3;
+    Model::SetTransform(hRing_, Ring);
+    Model::Draw(hRing_);
 
-    ImGui::Text("Rotate:%.3f", tbunny.rotate_.y);
+    //テクスチャなし、フォンあり、いろあり
+    Ring.scale_ = { 0.35,0.35,0.35 };
+    Ring.position_ = { 0.7,0.5,0 };
+    Ring.rotate_.y += 0.3;
+    Model::SetTransform(hRing_PhongCollar_, Ring);
+    Model::Draw(hRing_PhongCollar_);
+
+    //ランバートのみ
+    Ring.scale_ = { 0.35,0.35,0.35 };
+    Ring.position_ = { -0.7,0.5,0 };
+    Ring.rotate_.y += 0.3;
+    Model::SetTransform(hRing_Lambert, Ring);
+    Model::Draw(hRing_Lambert);
+
+    //ランバートあり、テクスチャあり
+    Ring.scale_ = { 0.35,0.35,0.35 };
+    Ring.position_ = { -0.7,1.2,0 };
+    Ring.rotate_.y += 0.3;
+    Model::SetTransform(hRing_LambertTexture_, Ring);
+    Model::Draw(hRing_LambertTexture_);
+
+    ImGui::Text("Rotate:%.3f", Ring.rotate_.y);
 
 }
 

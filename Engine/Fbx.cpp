@@ -62,17 +62,6 @@ HRESULT Fbx::Load(std::string fileName)
 	return S_OK;
 }
 
-void Fbx::Update()
-{
-	if (Input::IsKeyDown(DIK_Z))
-	{
-		ShaderState_++;
-		//camState_ = (++camState_) % (CAM_TYPE::MAX);
-		if (ShaderState_ = SHADERTYPE::POINTLIGHT)
-			ShaderState_ = SHADERTYPE::POINTLIGHT;
-	}
-}
-
 //頂点バッファ準備
 void Fbx::InitVertex(fbxsdk::FbxMesh* mesh)
 {
@@ -188,7 +177,7 @@ void Fbx::InitIndex(fbxsdk::FbxMesh* mesh)
 void Fbx::IntConstantBuffer()
 {
 	D3D11_BUFFER_DESC cb;
-	cb.ByteWidth = sizeof(CONSTANT_BUFFER_MODEL);
+	cb.ByteWidth = sizeof(CONSTBUFFER_MODEL);
 	cb.Usage = D3D11_USAGE_DYNAMIC;
 	cb.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	cb.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -255,6 +244,9 @@ void Fbx::InitMaterial(fbxsdk::FbxNode* pNode)
 				pMaterialList_[i].specular = { (float)specular[0],(float)specular[1], (float)specular[2], 1.0f };
 				pMaterialList_[i].shininess = { (float)shininess,(float)shininess, (float)shininess, 1.0 };
 			}
+
+
+
 		}
 
 		//テクスチャ無し
@@ -291,11 +283,10 @@ void Fbx::InitMaterial(fbxsdk::FbxNode* pNode)
 
 void Fbx::Draw(Transform& transform)
 {
-
 	switch (ShaderState_)
 	{
 	case SHADERTYPE::POINTLIGHT:
-		Direct3D::SetShader(SHADER_POINT);
+		Direct3D::SetShader(SHADER_3D);
 		break;
 	case SHADERTYPE::MATERIAL:
 		Direct3D::SetShader(SHADER_3D);
@@ -305,12 +296,11 @@ void Fbx::Draw(Transform& transform)
 	}
 	
 	transform.Calclation();//トランスフォームを計算
-
-
+	
 	for (int i = 0; i < materialCount_; i++)
 	{
 		//コンスタントバッファに情報を渡す
-		CONSTANT_BUFFER_MODEL cb;
+		CONSTBUFFER_MODEL cb;
 		cb.matW = XMMatrixTranspose(transform.GetWorldMatrix());
 		cb.matWVP = XMMatrixTranspose(transform.GetWorldMatrix() * Camera::GetViewMatrix() * Camera::GetProjectionMatrix());
 		cb.matW = XMMatrixTranspose(transform.GetWorldMatrix());
@@ -362,3 +352,4 @@ void Fbx::Draw(Transform& transform)
 void Fbx::Release()
 {
 }
+

@@ -21,31 +21,31 @@ enum SHADERTYPE
 	MATERIAL,
 };
 
+
 class Fbx
 {
-
 	int ShaderState_;
 	//マテリアル
 	struct MATERIAL
 	{
 		Texture* pTexture;
-		XMFLOAT4 diffuse;
-		XMFLOAT4 specular;
-		XMFLOAT4 shininess;
-		XMFLOAT4 ambient;
-		XMFLOAT4 factor;
+		XMFLOAT4 diffuse;//鏡面反射係数　ベクトル
+		XMFLOAT4 specular;//鏡面反射係数　ベクトル(色）
+		XMFLOAT4 shininess; //鏡面反射のパラメータ スカラ
+		XMFLOAT4 ambient; //環境光の反射係数（環境光の色？）ベクトル
+		XMFLOAT4 factor; //スカラ
 	};
 
-	struct CONSTANT_BUFFER_MODEL
+	struct CONSTBUFFER_MODEL
 	{
 		XMMATRIX	matWVP;//スクリーン変換マトリクス
 		XMMATRIX	matW; //ワールド変換マトリクス
 		XMMATRIX	matNormal;//法線ワールド変換用マトリクス
 		XMFLOAT4	diffuseColor;//RGBの拡散反射係数（色）
 		XMFLOAT4	diffuseFactor;//拡散光の反射係数
-		XMFLOAT4    ambientColor;
-		XMFLOAT4    specularColor;
-		XMFLOAT4    shininess;
+		XMFLOAT4	ambientColor;
+		XMFLOAT4	specularColor;
+		XMFLOAT4	shininess;
 		int			isTextured;
 	};
 
@@ -65,7 +65,7 @@ class Fbx
 	ID3D11Buffer* pConstantBuffer_;
 	std::vector<MATERIAL> pMaterialList_;
 	vector <int> indexCount_;
-	
+
 	void InitVertex(fbxsdk::FbxMesh* mesh);
 	void InitIndex(fbxsdk::FbxMesh* mesh);
 	void IntConstantBuffer();
@@ -74,7 +74,6 @@ public:
 
 	Fbx();
 	HRESULT Load(std::string fileName);
-	void    Update();
 	void    Draw(Transform& transform);
 	void    Release();
 };
