@@ -289,7 +289,7 @@ void Fbx::Draw(Transform& transform)
 		Direct3D::SetShader(SHADER_3D);
 		break;
 	case SHADERTYPE::MATERIAL:
-		Direct3D::SetShader(SHADER_3D);
+		Direct3D::SetShader(SHADER_POINT);
 		break;
 	default:
 		break;

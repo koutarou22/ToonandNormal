@@ -128,17 +128,17 @@ void Stage::Draw()
 
     Transform ltr;
     ltr.position_ = { Direct3D::GetLightPos().x,Direct3D::GetLightPos().y,Direct3D::GetLightPos().z };
-    //ltr.scale_ = { 0.1,0.1,0.1 };
+    ltr.scale_ = { 0.1,0.1,0.1 };
     Model::SetTransform(hModel_, ltr);
     Model::Draw(hModel_);
 
 
-    Transform tr;
-    tr.position_ = { 0, 0, 0 };
-    tr.scale_ = { 2.0f,2.0f,2.0f };
-    tr.rotate_ = { 0,0,0 };
-    Model::SetTransform(hRoom_, tr);
-    Model::Draw(hRoom_);
+    //Transform tr;
+    //tr.position_ = { 0, 0, 0 };
+    //tr.scale_ = { 2.0f,2.0f,2.0f };
+    //tr.rotate_ = { 0,0,0 };
+    //Model::SetTransform(hRoom_, tr);
+    //Model::Draw(hRoom_);
 
     //テクスチャあり、フォンあり
     static Transform Ring;
