@@ -4,6 +4,8 @@
 Texture2D g_texture : register(t0); //テクスチャー
 SamplerState g_sampler : register(s0); //サンプラー
 
+Texture2D g_Toontexture : register(t1); //テクスチャー
+
 //───────────────────────────────────────
 // コンスタントバッファ
 // DirectX 側から送信されてくる、ポリゴン頂点以外の諸情報の定義
@@ -38,7 +40,7 @@ struct VS_OUT
     float2 uv : TEXCOORD; //UV座標
     float4 normal : NORMAL;
     float4 eyev : POSITION1;
-    //float4 col : COLOR;
+    float4 col : COLOR;
 };
 
 //───────────────────────────────────────
@@ -79,6 +81,34 @@ float4 PS(VS_OUT inData) : SV_Target
     float3 dir = normalize(lightPosition.xyz - inData.wpos.xyz); //ピクセル位置のポリゴンの3次元座標＝wpos
     //inData.normal.z = 0;
     float color = saturate(dot(normalize(inData.normal.xyz), dir));
+    
+    float4 NL = saturate(dot(inData.normal, normalize(lightPosition)));
+    float4 n1 = float4(1.0f / 4.0f, 1 / 4.0f, 1 / 4.0f, 1.0);
+    float4 n2 = float4(2.0f / 4.0f, 2 / 4.0f, 2 / 4.0f, 1.0);
+    float4 n3 = float4(3.0f / 4.0f, 3 / 4.0f, 3 / 4.0f, 1.0);
+    float4 n4 = float4(4.0f / 4.0f, 4 / 4.0f, 4 / 4.0f, 1.0);
+    float4 tI = 0.1 * step(n1, inData.col) + 0.3 * step(n2, inData.col) + 0.3 * step(n3, inData.col);
+ 
+    ////float4 NL;
+    //float outcolor;
+    
+    //if(NL.x < 1.0f /4)
+    //{
+    //    outcolor = float4(0.0f / 3.0f, 0.0f / 3.0f, 0.0f / 3.0f,1.0);
+    //}
+    //else if (NL.x < 2.0f / 4)
+    //{
+    //    outcolor = float4(1.0f / 3.0f, 1.0f / 3.0f, 1.0f / 3.0f, 1.0);
+    //}
+    //else if (NL.x < 3.0f / 4)
+    //{
+    //    outcolor = float4(2.0f / 3.0f, 2.0f / 3.0f, 2.0f / 3.0f, 1.0);
+    //}
+    //else
+    //{
+    //    outcolor = float4(3 / 3.0f, 3 / 3.0f, 3 / 3.0f, 1.0);
+    //}
+   
     float3 k = { 0.2f, 0.2f, 1.0f };
     float len = length(lightPosition.xyz - inData.wpos.xyz);
     float dTerm = 1.0 / (k.x + k.y * len + k.z * len * len);
@@ -100,6 +130,9 @@ float4 PS(VS_OUT inData) : SV_Target
 
     }
 
-    return diffuse + specular + ambient;
+   // return diffuse + specular + ambient;
     //return specular + ambient;
+    
+    float2 uv = float2(tI.x, 0);
+    return g_Toontexture.Sample(g_sampler,inData.uv);
 }

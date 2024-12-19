@@ -70,6 +70,8 @@ class Fbx
 	void InitIndex(fbxsdk::FbxMesh* mesh);
 	void IntConstantBuffer();
 	void InitMaterial(fbxsdk::FbxNode* pNode);
+	Texture* pToonTex_;
+
 public:
 
 	Fbx();
