@@ -133,12 +133,12 @@ void Stage::Draw()
     Model::Draw(hModel_);
 
 
-    //Transform tr;
-    //tr.position_ = { 0, 0, 0 };
-    //tr.scale_ = { 2.0f,2.0f,2.0f };
-    //tr.rotate_ = { 0,0,0 };
-    //Model::SetTransform(hRoom_, tr);
-    //Model::Draw(hRoom_);
+    Transform tr;
+    tr.position_ = { 0, 0, 0 };
+    tr.scale_ = { 2.0f,2.0f,2.0f };
+    tr.rotate_ = { 0,0,0 };
+    Model::SetTransform(hRoom_, tr);
+    Model::Draw(hRoom_);
 
     //テクスチャあり、フォンあり
     static Transform Ring;
