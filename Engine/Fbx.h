@@ -17,8 +17,8 @@ class Texture;
 
 enum SHADERTYPE
 {
-	POINTLIGHT = 1,
-	MATERIAL,
+	MATERIAL = 1,
+	POINTLIGHT,
 };
 
 

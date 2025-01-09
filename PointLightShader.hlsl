@@ -118,9 +118,9 @@ float4 PS(VS_OUT inData) : SV_Target
     
     if (isTextured == false)
     {
-        diffuse = diffuseColor * color * dTerm * factor.x;
+        diffuse = lightPosition* diffuseColor * color * dTerm * factor.x;
         ////diffuse = float4(1.0, 1.0, 1.0, 1.0);
-        ambient = diffuseColor * ambentSource;
+        ambient = diffuseColor * ambientColor;
 
     }
     else
@@ -130,9 +130,9 @@ float4 PS(VS_OUT inData) : SV_Target
 
     }
 
-   // return diffuse + specular + ambient;
+    return diffuse + specular;
     //return specular + ambient;
     
     float2 uv = float2(tI.x, 0);
-    return g_Toontexture.Sample(g_sampler,inData.uv);
+   // return g_Toontexture.Sample(g_sampler,inData.uv);
 }

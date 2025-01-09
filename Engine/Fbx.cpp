@@ -289,12 +289,13 @@ void Fbx::Draw(Transform& transform)
 {
 	switch (ShaderState_)
 	{
-	case SHADERTYPE::POINTLIGHT:
-		Direct3D::SetShader(SHADER_POINT);
-		break;
 	case SHADERTYPE::MATERIAL:
 		Direct3D::SetShader(SHADER_3D);
 		break;
+	case SHADERTYPE::POINTLIGHT:
+		Direct3D::SetShader(SHADER_POINT);
+		break;
+	
 	default:
 		break;
 	}
@@ -347,11 +348,9 @@ void Fbx::Draw(Transform& transform)
 			ID3D11ShaderResourceView* pSRV = pMaterialList_[i].pTexture->GetSRV();
 			Direct3D::pContext_->PSSetShaderResources(0, 1, &pSRV);
 		}
-		ID3D11SamplerState* pSampler = pToonTex_->GetSampler();
-		ID3D11ShaderResourceView* pSRV = pToonTex_->GetSRV();
+		ID3D11ShaderResourceView* pSRVToon = pToonTex_->GetSRV();
 
-		Direct3D::pContext_->PSSetSamplers(1, 1, &pSampler);
-		Direct3D::pContext_->PSSetShaderResources(1, 1, &pSRV);
+		Direct3D::pContext_->PSSetShaderResources(1, 1, &pSRVToon);
 		//•`‰æ
 		Direct3D::pContext_->DrawIndexed(indexCount_[i], 0, 0);
 	}
