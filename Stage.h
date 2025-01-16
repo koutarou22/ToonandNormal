@@ -17,6 +17,8 @@ class Stage : public GameObject
     int hRing_LambertTexture_;//テクスチャあり　phongなしのトーラス(lambert)
     int hRing_PhongCollar_;//テクスチャなし、phongあり、色あり
     int hRing_Lambert;//テクスチャなし、lambertのみ
+
+    bool isRotate;
     ID3D11Buffer* pConstantBuffer_;
 
     void InitConstantBuffer();

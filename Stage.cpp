@@ -30,7 +30,7 @@ void Stage::InitConstantBuffer()
 
 //コンストラクタ
 Stage::Stage(GameObject* parent)
-    :GameObject(parent, "Stage"),pConstantBuffer_(nullptr)
+    :GameObject(parent, "Stage"),pConstantBuffer_(nullptr),isRotate(false)
 {
     hModel_ = -1;
     hGround = -1;
@@ -69,7 +69,10 @@ void Stage::Update()
 {
 
     Fbx* pFbx = nullptr;
-    transform_.rotate_.y += 0.5f;
+    if (isRotate)
+    {
+        transform_.rotate_.y += 0.5f;
+    }
     if (Input::IsKey(DIK_A))
     {
         XMFLOAT4 p = Direct3D::GetLightPos();
@@ -142,34 +145,65 @@ void Stage::Draw()
 
     //テクスチャあり、フォンあり
     static Transform Ring;
-    Ring.scale_ = { 0.35,0.35,0.35 };
-    Ring.position_ = { 0,0.5,0 };
-    Ring.rotate_.y += 0.3;
+    //Ring.scale_ = { 0.35,0.35,0.35 };
+    //Ring.position_ = { 0,0.5,0 };
+   
     Model::SetTransform(hRing_, Ring);
     Model::Draw(hRing_);
 
     //テクスチャなし、フォンあり、いろあり
-    Ring.scale_ = { 0.35,0.35,0.35 };
-    Ring.position_ = { 0.7,0.5,0 };
-    Ring.rotate_.y += 0.3;
+   // Ring.scale_ = { 0.35,0.35,0.35 };
+   // Ring.position_ = { 0.7,0.5,0 };
+    
     Model::SetTransform(hRing_PhongCollar_, Ring);
     Model::Draw(hRing_PhongCollar_);
 
     //ランバートのみ
-    Ring.scale_ = { 0.35,0.35,0.35 };
-    Ring.position_ = { -0.7,0.5,0 };
-    Ring.rotate_.y += 0.3;
+   // Ring.scale_ = { 0.35,0.35,0.35 };
+    //Ring.position_ = { -0.7,0.5,0 };
+  
     Model::SetTransform(hRing_Lambert, Ring);
     Model::Draw(hRing_Lambert);
 
     //ランバートあり、テクスチャあり
-    Ring.scale_ = { 0.35,0.35,0.35 };
-    Ring.position_ = { -0.7,1.2,0 };
-    Ring.rotate_.y += 0.3;
+  //  Ring.scale_ = { 0.35,0.35,0.35 };
+   // Ring.position_ = { -0.7,1.2,0 };
+    
     Model::SetTransform(hRing_LambertTexture_, Ring);
     Model::Draw(hRing_LambertTexture_);
 
-    ImGui::Text("Rotate:%.3f", Ring.rotate_.y);
+    if (isRotate)
+    {
+        Ring.rotate_.y += 0.3;
+    }
+
+
+    {
+        static string text;
+        //ImGui::ShowDemoWindow();
+        ImGui::Text("This is My Original Shader");
+        ImGui::Separator();//区切り線をつける事が出来る
+        ImGui::Text("Stage Position%5.2lf,%5.2lf,%5.2lf", transform_.position_.x, transform_.position_.y, transform_.position_.z);
+
+        ImGui::Checkbox("RotateSwitch", &isRotate);
+        if (ImGui::Button("Rotate Light"))
+        {
+            isRotate = !isRotate;
+        }
+        ImGui::InputText("Input:", text.data(), 255);
+        ImGui::Text(text.c_str());
+
+        static float pos[3] = {0,0,0};
+        if (ImGui::InputFloat3("Position", pos, "%.3f"))
+        {
+            Ring.position_ = { pos[0],pos[1], pos[2] };
+        }
+        static float Scale[3] = { 0.25,0.25,0.25 };
+        if(ImGui::SliderFloat3("Scale", Scale, 0,2, "%.3f"))
+        {
+            Ring.scale_ = { Scale[0],Scale[1], Scale[2] };
+        }
+    }
 
 }
 
