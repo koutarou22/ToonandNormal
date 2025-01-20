@@ -145,29 +145,29 @@ void Stage::Draw()
 
     //テクスチャあり、フォンあり
     static Transform Ring;
-    //Ring.scale_ = { 0.35,0.35,0.35 };
-    //Ring.position_ = { 0,0.5,0 };
+    Ring.scale_ = { 0.35,0.35,0.35 };
+    Ring.position_ = { 0,0.5,0 };
    
     Model::SetTransform(hRing_, Ring);
     Model::Draw(hRing_);
 
     //テクスチャなし、フォンあり、いろあり
-   // Ring.scale_ = { 0.35,0.35,0.35 };
-   // Ring.position_ = { 0.7,0.5,0 };
+    Ring.scale_ = { 0.35,0.35,0.35 };
+    Ring.position_ = { 0.7,0.5,0 };
     
     Model::SetTransform(hRing_PhongCollar_, Ring);
     Model::Draw(hRing_PhongCollar_);
 
     //ランバートのみ
-   // Ring.scale_ = { 0.35,0.35,0.35 };
-    //Ring.position_ = { -0.7,0.5,0 };
+    Ring.scale_ = { 0.35,0.35,0.35 };
+    Ring.position_ = { -0.7,0.5,0 };
   
     Model::SetTransform(hRing_Lambert, Ring);
     Model::Draw(hRing_Lambert);
 
     //ランバートあり、テクスチャあり
-  //  Ring.scale_ = { 0.35,0.35,0.35 };
-   // Ring.position_ = { -0.7,1.2,0 };
+    Ring.scale_ = { 0.35,0.35,0.35 };
+    Ring.position_ = { -0.7,1.2,0 };
     
     Model::SetTransform(hRing_LambertTexture_, Ring);
     Model::Draw(hRing_LambertTexture_);
@@ -193,16 +193,16 @@ void Stage::Draw()
         ImGui::InputText("Input:", text.data(), 255);
         ImGui::Text(text.c_str());
 
-        static float pos[3] = {0,0,0};
+  /*      static float pos[3] = {0,0,0};
         if (ImGui::InputFloat3("Position", pos, "%.3f"))
         {
             Ring.position_ = { pos[0],pos[1], pos[2] };
         }
-        static float Scale[3] = { 0.25,0.25,0.25 };
+        static float Scale[3] = { 0.2,0.2,0.2 };
         if(ImGui::SliderFloat3("Scale", Scale, 0,2, "%.3f"))
         {
             Ring.scale_ = { Scale[0],Scale[1], Scale[2] };
-        }
+        }*/
     }
 
 }
