@@ -96,6 +96,7 @@
     <FxCompile Include="PointLightShader.hlsl" />
     <FxCompile Include="ToonShader.hlsl" />
     <FxCompile Include="OutLineShader.hlsl" />
+    <FxCompile Include="normalmap.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Camera.h">
