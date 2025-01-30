@@ -46,13 +46,14 @@ struct VS_OUT
     float4 color : COLOR;
 };
  
+
 //───────────────────────────────────────
 // 頂点シェーダ
 //───────────────────────────────────────
 VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
 {
     VS_OUT outData;
- 
+    
     // スクリーン座標に変換し、ピクセルシェーダーへ
     outData.pos = mul(pos, matWVP);
     outData.uv = uv.xy;
@@ -60,7 +61,7 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
     // 法線をワールド座標系に変換
     outData.normal = mul(normal, matNormal);
     outData.eyev = mul(pos, matW);
- 
+    
     return outData;
 }
 
