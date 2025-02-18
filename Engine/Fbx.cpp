@@ -128,8 +128,6 @@ void Fbx::InitVertex(fbxsdk::FbxMesh* mesh)
 			int rIndex = mesh->GetPolygonVertices()[index + i];
 			vertices[rIndex].tangent = XMVectorSet((float)tangent[0], (float)tangent[1], (float)tangent[2], 0.0f);
 		}
-
-
 	}
 
 	/////////////////////////

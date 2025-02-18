@@ -52,7 +52,7 @@ void Stage::Initialize()
     hModel_ = Model::Load("Assets\\color.fbx");
     hRoom_ = Model::Load("Assets\\room.fbx");
     hGround = Model::Load("Assets\\plane3.fbx");
-    hRing_ = Model::Load("Assets\\RING.fbx");
+    hRing_ = Model::Load("Assets\\isigaki.fbx");
 
     hRing_Lambert = Model::Load("Assets\\LAMBERT_RING.fbx");
     
