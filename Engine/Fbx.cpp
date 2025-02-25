@@ -353,7 +353,7 @@ void Fbx::InitMaterial(fbxsdk::FbxNode* pNode)
 void Fbx::Draw(Transform& transform)
 {
 
-	Direct3D::SetShader(SHADER_OUTLINE);
+	Direct3D::SetShader(SHADER_NORMALMAP);
 	//switch (ShaderState_)
 	//{
 	//case SHADERTYPE::MATERIAL:
