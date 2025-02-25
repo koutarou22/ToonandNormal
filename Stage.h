@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/GameObject.h"
+#include "Engine/Sprite.h"
 
 #pragma once
 #include "Engine/GameObject.h"
@@ -46,6 +47,7 @@ struct pointLightState
 class Stage : public GameObject
 {
     int hModel_;    //ƒ‚ƒfƒ‹”Ô†
+    int hImage_;
     int hRoom_;
     int hGround;
     int hRing_;//Å‰‚Ì“z
@@ -78,4 +80,6 @@ public:
 
     //ŠJ•ú
     void Release() override;
+
+    Sprite* pSprite = new Sprite("Assets//collar.png");
 };

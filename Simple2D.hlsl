@@ -1,8 +1,8 @@
 //───────────────────────────────────────
  // テクスチャ＆サンプラーデータのグローバル変数定義
 //───────────────────────────────────────
-Texture2D		g_texture : register(t0);	//テクスチャー
-SamplerState	g_sampler : register(s0);	//サンプラー
+Texture2D g_texture : register(t0); //テクスチャー
+SamplerState g_sampler : register(s0); //サンプラー
 
 //───────────────────────────────────────
 // コンスタントバッファ
@@ -10,7 +10,7 @@ SamplerState	g_sampler : register(s0);	//サンプラー
 //───────────────────────────────────────
 cbuffer global
 {
-	float4x4	matW;			// ワールド行列
+    float4x4 matW; // ワールド行列
 };
 
 //───────────────────────────────────────
@@ -18,8 +18,8 @@ cbuffer global
 //───────────────────────────────────────
 struct VS_OUT
 {
-	float4 pos  : SV_POSITION;	//位置
-	float2 uv	: TEXCOORD;		//UV座標
+    float4 pos : SV_POSITION; //位置
+    float2 uv : TEXCOORD; //UV座標
 };
 
 //───────────────────────────────────────
@@ -28,16 +28,16 @@ struct VS_OUT
 VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD)
 {
 	//ピクセルシェーダーへ渡す情報
-	VS_OUT outData;
+    VS_OUT outData;
 
 	//ローカル座標に、ワールド行列をかけて
 	//スクリーン座標に変換し、ピクセルシェーダーへ
 	//outData.pos = mul(pos, matW);
     outData.pos = pos;
-	outData.uv = uv;
+    outData.uv = uv;
 
 	//まとめて出力
-	return outData;
+    return outData;
 }
 
 //───────────────────────────────────────
@@ -45,15 +45,17 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD)
 //───────────────────────────────────────
 float4 PS(VS_OUT inData) : SV_Target
 {
-	float4 output;
-    if ((int) (inData.uv.y * 600.0) % 3 == 0)
-    {
-        if ((int) (inData.uv.x * 800.0) % 2 == 1)
-            output = g_texture.Sample(g_sampler, inData.uv);
-        else
-            output = float4(0, 0, 0, 0);
-    }
-	else
-        output = float4(0, 0, 0, 0);
-	return output;
+    float4 output;
+    //if ((int) (inData.uv.y * 600.0) % 3 == 0)
+    //{
+    //    if ((int) (inData.uv.x * 800.0) % 2 == 1)
+    //        output = g_texture.Sample(g_sampler, inData.uv);
+    //    else
+    //        output = float4(0, 0, 0, 0);
+    //}
+    //else
+    //    output = float4(0, 0, 0, 0);
+    
+    output = g_texture.Sample(g_sampler, inData.uv);
+    return output;
 }

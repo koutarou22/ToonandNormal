@@ -2,14 +2,24 @@
 
 #include "Sprite.h"
 #include "Camera.h"
+#include "filesystem"
 
+namespace fs = std::filesystem;
 
 //コンストラクタ
 Sprite::Sprite() :
 	vertexNum_(0), pVertexBuffer_(nullptr),
 	indexNum(0), pIndexBuffer_(nullptr),
 	pConstantBuffer_(nullptr),
-	pTexture_(nullptr)
+	pTexture_(nullptr),filename_("")
+{
+}
+
+Sprite::Sprite(string filename) :
+	vertexNum_(0), pVertexBuffer_(nullptr),
+	indexNum(0), pIndexBuffer_(nullptr),
+	pConstantBuffer_(nullptr),
+	pTexture_(nullptr), filename_(filename)
 {
 }
 
@@ -43,10 +53,22 @@ HRESULT Sprite::Initialize()
 	}
 
 	//テクスチャのロード
-	if (FAILED(LoadTexture()))
+	if (filename_ == "")
 	{
-		return E_FAIL;
+		if (FAILED(LoadTexture()))
+		{
+			return E_FAIL;
+		}
+	
 	}
+	else
+	{
+		if (FAILED(LoadTexture(filename_)))
+		{
+			return E_FAIL;
+		}
+	}
+
 
 	return S_OK;
 }
@@ -68,6 +90,39 @@ void Sprite::Draw(Transform& transform)
 
 	//描画
 	Direct3D::pContext_->DrawIndexed(indexNum, 0, 0);
+}
+
+void Sprite::Draw(Transform& transform, RECT rect, float alpha)
+{
+	Direct3D::SetShader(SHADER_2D);
+
+	//頂点バッファ
+	UINT stride = sizeof(VERTEX);
+	UINT offset = 0;
+	Direct3D::pContext_->IASetVertexBuffers(0, 1, &pVertexBuffer_, &stride, &offset);
+
+	// インデックスバッファーをセット
+	stride = sizeof(int);
+	offset = 0;
+	Direct3D::pContext_->IASetIndexBuffer(pIndexBuffer_, DXGI_FORMAT_R32_UINT, 0);
+
+	//コンスタントバッファ
+	Direct3D::pContext_->VSSetConstantBuffers(0, 1, &pConstantBuffer_);	//頂点シェーダー用	
+	Direct3D::pContext_->PSSetConstantBuffers(0, 1, &pConstantBuffer_);	//ピクセルシェーダー用
+
+	//Direct3D::SetDepthBafferWriteEnable(false);
+	//後々書きます
+
+	CONSTANT_BUFFER cb;
+	D3D11_MAPPED_SUBRESOURCE pdata;
+
+	//表示サイズに縮小
+	XMMATRIX cut = XMMatrixScaling((float)rect.right, (float)rect.bottom, 1);
+	//XMMATRIX view = XMMatrixScaling(1.0f/ScreenWidth,1.0f/Screenheight,1);
+
+	/*XMMATRIX world = cut * transform.matScale_
+		                   * transform.matRotate_
+		                   * view * transform.matTranslate_;*/
 }
 
 //解放
@@ -198,6 +253,28 @@ HRESULT Sprite::LoadTexture()
 		return hr;
 	}
 	return S_OK;
+}
+
+HRESULT Sprite::LoadTexture(string filename_)
+{
+	pTexture_ = new Texture;
+
+	HRESULT hr;
+
+	fs::path texFile(filename_);
+	//fs::path fname = texFile.filename();
+
+	if (fs::is_regular_file(texFile))
+	{
+		hr = pTexture_->Load(texFile.string());
+		if (FAILED(hr))
+		{
+			MessageBox(NULL, "テクスチャの作成に失敗しました", "エラー", MB_OK);
+			return hr;
+		}
+		return S_OK;
+	}
+	return S_FALSE;
 }
 
 //コンスタントバッファに各種情報を渡す

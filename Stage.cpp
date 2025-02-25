@@ -5,6 +5,7 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_impl_win32.h"
+#include "Engine/Sprite.h"
 
 namespace
 {
@@ -52,11 +53,11 @@ Stage::~Stage()
 //初期化
 void Stage::Initialize()
 {
-    hModel_ = Model::Load("Assets\\Ball.fbx");
-    hRoom_ = Model::Load("Assets\\room.fbx");
-    hGround = Model::Load("Assets\\plane3.fbx");
-    //  hBunny_ = Model::Load("Assets\\ishigaki.fbx");
-    hRing_ = Model::Load("Assets\\Earth.fbx");
+    //hModel_ = Model::Load("Assets\\Ball.fbx");
+    //hRoom_ = Model::Load("Assets\\room.fbx");
+    //hGround = Model::Load("Assets\\plane3.fbx");
+    ////  hBunny_ = Model::Load("Assets\\ishigaki.fbx");
+    //hRing_ = Model::Load("Assets\\Earth.fbx");
     Camera::SetPosition(XMFLOAT3{ 0, 0.8, -2.8 });
     Camera::SetTarget(XMFLOAT3{ 0,0.8,0 });
     sptlight_ =
@@ -91,6 +92,7 @@ void Stage::Initialize()
     ptlight_[3].sw = 0;
     ptlight_[4].sw = 0;
 
+    pSprite->Initialize();
 
     for (int i = 0; i < POINT_LIGHT_MAX; i++)
     {
@@ -178,85 +180,87 @@ void Stage::Update()
 //描画
 void Stage::Draw()
 {
-    Transform ltr;
-    ltr.position_ = { Direct3D::GetLightPos().x,Direct3D::GetLightPos().y,Direct3D::GetLightPos().z };
-    ltr.scale_ = { 0.1,0.1,0.1 };
-    Model::SetTransform(hModel_, ltr);
-    Model::Draw(hModel_);
+   
+    pSprite->Draw(transform_);
+    //Transform ltr;
+    //ltr.position_ = { Direct3D::GetLightPos().x,Direct3D::GetLightPos().y,Direct3D::GetLightPos().z };
+    //ltr.scale_ = { 0.1,0.1,0.1 };
+    //Model::SetTransform(hModel_, ltr);
+    //Model::Draw(hModel_);
 
-    Transform tr;
-    tr.position_ = { 0, 0, 0 };
-    //tr.scale_ = { 5.0f, 5.0f, 5.0f };
-    tr.rotate_ = { 0,0,0 };
-    //Model::SetTransform(hGround, tr);
-    //Model::Draw(hGround);
+    //Transform tr;
+    //tr.position_ = { 0, 0, 0 };
+    ////tr.scale_ = { 5.0f, 5.0f, 5.0f };
+    //tr.rotate_ = { 0,0,0 };
+    ////Model::SetTransform(hGround, tr);
+    ////Model::Draw(hGround);
 
-    Model::SetTransform(hRoom_, tr);
-    Model::Draw(hRoom_);
+    //Model::SetTransform(hRoom_, tr);
+    //Model::Draw(hRoom_);
 
-    static Transform tbunny;
-    tbunny.scale_ = { 0.5,0.5,0.5 };
-    tbunny.position_ = { 0, 0.5, 0 };
+    //static Transform tbunny;
+    //tbunny.scale_ = { 0.5,0.5,0.5 };
+    //tbunny.position_ = { 0, 0.5, 0 };
 
-    if (isRotate)
-        tbunny.rotate_.y += 1;//ドーナツの回転
+    //if (isRotate)
+    //    tbunny.rotate_.y += 1;//ドーナツの回転
 
 
-    Model::SetTransform(hRing_, tbunny);
-    Model::Draw(hRing_);
+    //Model::SetTransform(hRing_, tbunny);
+    //Model::Draw(hRing_);
 
-    static float lightRotAngle = 0;
-    XMVECTOR pt[POINT_LIGHT_MAX];
-    if (isRoateLight) {
-        for (int i = 0; i < POINT_LIGHT_MAX; i++)
-        {
-            pt[i] = XMLoadFloat4(&lpos_backup[i]);
-        }
-        XMMATRIX yrot = XMMatrixRotationY(lightRotAngle);
-        for (int i = 0; i < POINT_LIGHT_MAX; i++)
-        {
-            //ptlight_[i].lightPosition = XMVector3TransformCoord(pt[i], yrot);
-            XMStoreFloat4(&(ptlight_[i].lightPosition),
-                XMVector3TransformCoord(pt[i], yrot));
-        }
-    }
-    else
-    {
-        for (int i = 0; i < POINT_LIGHT_MAX; i++)
-        {
-            ptlight_[i].lightPosition = lpos_backup[i];
-        }
-    }
+    //static float lightRotAngle = 0;
+    //XMVECTOR pt[POINT_LIGHT_MAX];
+    //if (isRoateLight) {
+    //    for (int i = 0; i < POINT_LIGHT_MAX; i++)
+    //    {
+    //        pt[i] = XMLoadFloat4(&lpos_backup[i]);
+    //    }
+    //    XMMATRIX yrot = XMMatrixRotationY(lightRotAngle);
+    //    for (int i = 0; i < POINT_LIGHT_MAX; i++)
+    //    {
+    //        //ptlight_[i].lightPosition = XMVector3TransformCoord(pt[i], yrot);
+    //        XMStoreFloat4(&(ptlight_[i].lightPosition),
+    //            XMVector3TransformCoord(pt[i], yrot));
+    //    }
+    //}
+    //else
+    //{
+    //    for (int i = 0; i < POINT_LIGHT_MAX; i++)
+    //    {
+    //        ptlight_[i].lightPosition = lpos_backup[i];
+    //    }
+    //}
 
-    {
-        ////  デモウィンドウの描画
-        //ImGui::ShowDemoWindow();
-        static string text;
-        ImGui::Text("This is My Original Shader");
-        ImGui::Separator();
-        ImGui::Text("Model Pos => (%5.2lf, %5.2lf, %5.2lf)",
-            tbunny.position_.x,
-            tbunny.position_.y,
-            tbunny.position_.z);
-        ImGui::Text("Model rotate => %5.3lf", tbunny.rotate_.y);
-        ImGui::Checkbox("Rotate Switch", &isRotate);
-        if (ImGui::Button("Rotate Light"))
-        {
-            isRotate = !isRotate;
+    //{
+    //    ////  デモウィンドウの描画
+    //    //ImGui::ShowDemoWindow();
+    //    static string text;
+    //    ImGui::Text("This is My Original Shader");
+    //    ImGui::Separator();
+    //    ImGui::Text("Model Pos => (%5.2lf, %5.2lf, %5.2lf)",
+    //        tbunny.position_.x,
+    //        tbunny.position_.y,
+    //        tbunny.position_.z);
+    //    ImGui::Text("Model rotate => %5.3lf", tbunny.rotate_.y);
+    //    ImGui::Checkbox("Rotate Switch", &isRotate);
+    //    if (ImGui::Button("Rotate Light"))
+    //    {
+    //        isRotate = !isRotate;
 
-        }
-        ImGui::InputText("input:", text.data(), 255);
-        ImGui::Text(text.c_str());
-        static float pos[3] = { 0,0,0 };
-        if (ImGui::InputFloat3("Position", pos, "%.3f")) {
-            tbunny.position_ = { pos[0],pos[1],pos[2] };
-        }
-        static float scl = 0.25;
-        if (ImGui::SliderFloat("scale", &scl, 0.01, 2, "%.3f"))
-        {
-            tbunny.scale_ = { scl, scl, scl };
-        }
-    }
+    //    }
+    //    ImGui::InputText("input:", text.data(), 255);
+    //    ImGui::Text(text.c_str());
+    //    static float pos[3] = { 0,0,0 };
+    //    if (ImGui::InputFloat3("Position", pos, "%.3f")) {
+    //        tbunny.position_ = { pos[0],pos[1],pos[2] };
+    //    }
+    //    static float scl = 0.25;
+    //    if (ImGui::SliderFloat("scale", &scl, 0.01, 2, "%.3f"))
+    //    {
+    //        tbunny.scale_ = { scl, scl, scl };
+    //    }
+    //}
 
     //{
     //    ImGui::Text("Spot Light Params");
@@ -292,4 +296,5 @@ void Stage::Draw()
 //開放
 void Stage::Release()
 {
+    
 }

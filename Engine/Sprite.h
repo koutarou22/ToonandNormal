@@ -16,7 +16,9 @@ class Sprite
 	//コンスタントバッファー
 	struct CONSTANT_BUFFER
 	{
-		XMMATRIX	matW;		//ワールド行列
+		XMMATRIX	matW;		//ワールド
+		XMMATRIX    uvTrans;    //テクスチャ座標の変換行列
+		XMFLOAT4    bcolor;     //テクスチャとの合成色
 	};
 
 	//頂点情報
@@ -38,10 +40,12 @@ protected:
 	ID3D11Buffer* pConstantBuffer_;	//コンスタントバッファ
 
 	Texture* pTexture_;		//テクスチャ
+	std::string filename_;
 
 
 public:
 	Sprite();
+	Sprite(string filename);
 	~Sprite();
 
 	//初期化（ポリゴンを表示するための各種情報を準備）
@@ -51,9 +55,12 @@ public:
 	//描画
 	//引数：transform	トランスフォームクラスオブジェクト
 	void Draw(Transform& transform);
+	void Draw(Transform& transform, RECT rect, float alpha);
 
 	//解放
 	void Release();
+
+	XMFLOAT2 GetTextureSize() { return pTexture_->GetTextureSize(); }
 
 
 
@@ -68,6 +75,7 @@ private:
 	HRESULT CreateConstantBuffer();		//コンスタントバッファ作成
 
 	HRESULT LoadTexture();				//テクスチャをロード
+	HRESULT LoadTexture(string filename);
 
 
 	//---------Draw関数から呼ばれる関数---------
